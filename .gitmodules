@@ -1,0 +1,6 @@
+[submodule "Vendor/Binaries/IMGUI"]
+	path = Vendor/Binaries/IMGUI
+	url = https://github.com/ocornut/imgui.git
+[submodule "Vendor/Binaries/GLFW"]
+	path = Vendor/Binaries/GLFW
+	url = https://github.com/glfw/glfw.git
