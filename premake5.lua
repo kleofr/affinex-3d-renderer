@@ -35,7 +35,9 @@ project "App"
     files
     {
         "%{prj.name}/Source/**.h",
-        "%{prj.name}/Source/**.cpp"
+        "%{prj.name}/Source/**.cpp",
+        "%{prj.name}/Source/**.frag",
+        "%{prj.name}/Source/**.vert"
     }
 
     vpaths

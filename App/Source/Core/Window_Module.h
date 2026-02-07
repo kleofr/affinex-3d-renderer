@@ -26,16 +26,12 @@ namespace AffineX
 			unsigned int Width, Height;
 			bool VSync;
 		};
-
 		// Constructor and Destructor
-		Window_Module(const Window_Data& data)
-			: m_Title(data.Title), m_Width(data.Width), m_Height(data.Height), m_VSync(data.VSync)
-		{
-		}
+		Window_Module() = default;
 		virtual ~Window_Module();
 
 		// Public methods
-		virtual void InitWindow();
+		virtual void InitWindow(Window_Data& data);
 		virtual void RunWindow();
 		virtual void ShutdownWindow();
 

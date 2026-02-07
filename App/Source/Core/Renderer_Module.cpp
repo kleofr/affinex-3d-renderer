@@ -85,22 +85,6 @@ namespace AffineX
 		glFlush();
 	}
 
-	void Renderer_Module::DrawIndexed(GLuint vao, GLsizei indexCount, GLenum mode)
-	{
-		if (!m_initialized) return;
-		glBindVertexArray(vao);
-		// Assumes element type is unsigned int (common). Caller must ensure index buffer and program are bound.
-		glDrawElements(mode, indexCount, GL_UNSIGNED_INT, nullptr);
-		glBindVertexArray(0);
-	}
-
-	void Renderer_Module::DrawArrays(GLuint vao, GLsizei count, GLenum mode)
-	{
-		if (!m_initialized) return;
-		glBindVertexArray(vao);
-		glDrawArrays(mode, 0, count);
-		glBindVertexArray(0);
-	}
 
 	void Renderer_Module::SetClearColor(float r, float g, float b, float a)
 	{
@@ -108,6 +92,31 @@ namespace AffineX
 		m_clearColor[1] = g;
 		m_clearColor[2] = b;
 		m_clearColor[3] = a;
+	}
+
+	void Renderer_Module::renderTraingle() const
+	{
+		if (!m_initialized) return;
+		// Simple hardcoded triangle rendering for testing
+		float vertices[] = {
+			0.0f,  0.5f, 0.0f,
+		   -0.5f, -0.5f, 0.0f,
+			0.5f, -0.5f, 0.0f
+		};
+		GLuint VBO, VAO;
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
+		glBindVertexArray(VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glUseProgram(0); // Use fixed-function pipeline for simplicity
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+		glDeleteBuffers(1, &VBO);
+		glDeleteVertexArrays(1, &VAO);
 	}
 
 	void Renderer_Module::SetViewport(int width, int height)

@@ -11,17 +11,18 @@ namespace AffineX
 {
 	Window_Module::~Window_Module() 
 	{
+		printf("Shutting down Window_Module\n");
 		ShutdownWindow();
 	}
 
-	void Window_Module::InitWindow() 
+	void Window_Module::InitWindow(Window_Data& data)
 	{
 		if (!glfwInit()) 
 		{
 			printf("Failed to initialize GLFW\n");
 			return;
 		}
-		m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
+		m_Window = glfwCreateWindow(data.Width, data.Height, data.Title.c_str(), nullptr, nullptr);
 		if (!m_Window) 
 		{
 			printf("Failed to create GLFW window\n");
@@ -37,6 +38,7 @@ namespace AffineX
 		{
 			glfwSwapInterval(0); // Disable VSync
 		}
+		printf("Window '%s' created with size %ux%u\n", data.Title.c_str(), data.Width, data.Height);
 	}
 	void Window_Module::RunWindow() 
 	{
