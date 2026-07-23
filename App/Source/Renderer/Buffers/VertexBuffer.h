@@ -8,11 +8,14 @@ namespace AffineX
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer(const void* data, uint32_t size);
+		VertexBuffer(GLuint &VBO);
 		~VertexBuffer();
 
 		void Bind() const;
 		void Unbind() const;
+		void addData(auto data, uint32_t size) const;
+
+		void setRendererID(GLuint id) { m_RendererID = id; }
 
 	private:
 		unsigned int m_RendererID;

@@ -13,6 +13,7 @@ namespace AffineX
 	{
 		m_window.InitWindow(m_windowData);
 		m_gui.InitGUI(*m_window.GetGLFWwindow());
+		m_logger.init();
 		if (!m_renderer.InitRenderer(*m_window.GetGLFWwindow())) 
 		{
 			printf("Failed to initialize Renderer_Module\n");
@@ -23,6 +24,7 @@ namespace AffineX
 
 	void Engine::Run() 
 	{
+		m_renderer.createTriangle();
 		while (isRunning && !glfwWindowShouldClose(m_window.GetGLFWwindow())) 
 		{
 			glfwPollEvents();
@@ -36,6 +38,7 @@ namespace AffineX
 
 	void Engine::Shutdown() 
 	{
+		//m_logger.shutdown();
 		//m_renderer.ShutdownRenderer();
 		//m_gui.ShutdownGUI();
 		//m_window.ShutdownWindow();

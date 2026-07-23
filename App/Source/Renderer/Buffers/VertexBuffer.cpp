@@ -2,11 +2,9 @@
 
 namespace AffineX
 {
-	VertexBuffer::VertexBuffer(const void* data, uint32_t size)
+	VertexBuffer::VertexBuffer(GLuint &VBO)
 	{
-		glGenBuffers(1, &m_RendererID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+		glGenBuffers(1, &VBO);
 	}
 	VertexBuffer::~VertexBuffer()
 	{
@@ -19,5 +17,9 @@ namespace AffineX
 	void VertexBuffer::Unbind() const
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+	void VertexBuffer::addData(auto data, uint32_t size) const
+	{
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 	}
 }

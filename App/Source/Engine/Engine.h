@@ -4,6 +4,7 @@
 #include "Core/Renderer_Module.h"
 #include "Core/GUI_Module.h"
 #include "Core/Window_Module.h"
+#include "Core/Logger_Module.h"
 
 namespace AffineX
 {
@@ -25,6 +26,8 @@ namespace AffineX
 		Renderer_Module m_renderer;
 		GUI_Module m_gui;
 		Window_Module m_window;
+		Logger_Module m_logger;
+
 		bool isRunning = false;
 		Window_Module::Window_Data m_windowData{ "AffineX Engine", 800, 600, true };
 		//std::vector<std::unique_ptr<C_System>> m_systems; // Placeholder for future systems

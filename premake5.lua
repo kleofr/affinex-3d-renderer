@@ -21,7 +21,7 @@ IncludeDirs = {}
 IncludeDirs["GLFW"] = "Vendor/Binaries/GLFW/include"
 IncludeDirs["GLAD"] = "Vendor/Binaries/GLAD/include/glad"
 IncludeDirs["IMGUI"] = "Vendor/Binaries/IMGUI"
-
+IncludeDirs["spdlog"] = "Vendor/Binaries/spdlog/include"
 
 -- Include App Project
 
@@ -51,7 +51,8 @@ project "App"
         "Vendor/Binaries/GLFW/include",
         "Vendor/Binaries/GLAD/include",
         "Vendor/Binaries/IMGUI",
-        "Vendor/Binaries/IMGUI/backends"
+        "Vendor/Binaries/IMGUI/backends",
+        "Vendor/Binaries/spdlog/include"
     }
 
     links
