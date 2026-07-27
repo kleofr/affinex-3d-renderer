@@ -39,8 +39,7 @@ namespace AffineX
         None = 0,
         Console = 1 << 0,
         File = 1 << 1,
-        ImGui = 1 << 2,
-        All = Console | File | ImGui
+        All = Console | File
     };
 
     // Enable bitwise operations for LogTarget (so users can write Console | File)
@@ -83,6 +82,7 @@ namespace AffineX
 
         // Static accessor – allows macros to call without an Engine reference
         static Logger_Module* get() { return s_instance; }
+		static LogStorage* getStorage() { return s_instance ? s_instance->m_storage.get() : nullptr; }
 
         // Disable copy/move (singleton-like behaviour, owned by Engine)
         Logger_Module(const Logger_Module&) = delete;
@@ -97,7 +97,7 @@ namespace AffineX
         // Storage for history (used by ImGuiSink)
         std::unique_ptr<LogStorage> m_storage;
 
-        // All registered sinks (Console, File, ImGui, custom)
+        // All registered sinks (Console, File, custom)
         std::vector<std::unique_ptr<Sink>> m_sinks;
 
         // spdlog logger instances – owned by this module

@@ -1,9 +1,36 @@
+// ConsoleSink.h
 #pragma once
 
-#include "Logger_Module.h"
+#include "Sink.h"
 
-#define AX_TRACE(...)    ::AffineX::Logger_Module::GetLogger()->trace(__VA_ARGS__)
-#define AX_INFO(...)     ::AffineX::Logger_Module::GetLogger()->info(__VA_ARGS__)
-#define AX_WARN(...)     ::AffineX::Logger_Module::GetLogger()->warn(__VA_ARGS__)
-#define AX_ERROR(...)    ::AffineX::Logger_Module::GetLogger()->error(__VA_ARGS__)
-#define AX_CRITICAL(...) ::AffineX::Logger_Module::GetLogger()->critical(__VA_ARGS__)
+#include <memory>
+
+namespace spdlog
+{
+    class logger;
+}
+
+namespace AffineX
+{
+
+    // ------------------------------------------------------------------------
+    // ConsoleSink – forwards formatted logs to spdlog's console logger.
+    // - Converts LogEntry to spdlog level and calls the logger.
+    // - The actual output (colour, formatting) is handled by spdlog.
+    // - Target: Console.
+    // ------------------------------------------------------------------------
+    class ConsoleSink : public Sink
+    {
+    public:
+        // Constructor – takes ownership of (or shares) the spdlog console logger.
+        explicit ConsoleSink(std::shared_ptr<spdlog::logger> consoleLogger);
+
+        // Sink interface implementations
+        void log(const LogEntry& entry) override;
+        LogTarget getTarget() const override;
+
+    private:
+        std::shared_ptr<spdlog::logger> m_logger;
+    };
+
+} // namespace AffineX

@@ -62,6 +62,10 @@ project "App"
       "IMGUI",
       "opengl32.lib"
     }
+    buildoptions
+    {
+    "/utf-8"
+    }
 
    targetdir ("Binaries/" .. OutputDir .. "/%{prj.name}")
    objdir ("Binaries/Intermediates/" .. OutputDir .. "/%{prj.name}")

@@ -6,7 +6,6 @@
 #include "Logging/Sink.h"
 #include "Logging/ConsoleSink.h"
 #include "Logging/FileSink.h"
-#include "Logging/ImGuiSink.h"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -53,21 +52,22 @@ namespace AffineX
         m_consoleLogger = spdlog::stdout_color_mt("console");
         m_consoleLogger->set_level(spdlog::level::trace);
         m_consoleLogger->flush_on(spdlog::level::trace);
+        m_consoleLogger->set_pattern("%v");
 
         // 3. Create spdlog rotating file logger (5 MB per file, keep 3 backups)
         m_fileLogger = spdlog::rotating_logger_mt("file", "Log.txt", 1024 * 1024 * 5, 3);
         m_fileLogger->set_level(spdlog::level::trace);
         m_fileLogger->flush_on(spdlog::level::trace);
+        m_fileLogger->set_pattern("%v");
 
         // 4. Create our custom sink wrappers and register them
         m_sinks.clear();
         m_sinks.push_back(std::make_unique<ConsoleSink>(m_consoleLogger));
         m_sinks.push_back(std::make_unique<FileSink>(m_fileLogger));
-        m_sinks.push_back(std::make_unique<ImGuiSink>(m_storage.get()));
 
-        // 5. (Optional) Set a global pattern for spdlog – but our sinks will
+        // 5. (Optional) Set a global pattern for spdlog – but our sinks willf
         //    call entry.format() anyway, so this is just a fallback.
-        spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] %v");
+        //spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] %v");
     }
 
     // ------------------------------------------------------------------------
@@ -76,7 +76,9 @@ namespace AffineX
     void Logger_Module::shutdown()
     {
         // Flush all spdlog loggers to ensure everything is written
-        spdlog::flush_all();
+        spdlog::apply_all([](std::shared_ptr<spdlog::logger> logger) {
+            logger->flush();
+        });
 
         // Drop spdlog loggers (releases resources)
         spdlog::drop("console");
@@ -118,14 +120,16 @@ namespace AffineX
         const auto now = std::chrono::system_clock::now();
         LogEntry entry(now, level, file, line, function, message);
 
-        // 2. Store it permanently in the ring buffer (for ImGui history)
+        // 2. Dispatch to the requested sink(s)
+        dispatchToSinks(entry, target);
+
+        // 3. Store it permanently in the ring buffer (for ImGui history)
         if (m_storage)
         {
-            m_storage->addEntry(entry);
+            m_storage->addEntry(std::move(entry));
         }
 
-        // 3. Dispatch to the requested sink(s)
-        dispatchToSinks(entry, target);
+
     }
 
     // ------------------------------------------------------------------------

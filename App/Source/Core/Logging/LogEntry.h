@@ -1,6 +1,7 @@
 // LogEntry.h
 #pragma once
 
+#include "../Logger_Module.h"  // For LogLevel enum
 #include <string>
 #include <chrono>
 #include <cstdint>
@@ -10,15 +11,15 @@ namespace AffineX
     // ------------------------------------------------------------------------
     // Severity levels (mirrors spdlog's levels for easy conversion)
     // ------------------------------------------------------------------------
-    enum class LogLevel : uint8_t
-    {
-        Trace,
-        Debug,
-        Info,
-        Warn,
-        Error,
-        Critical
-    };
+    //enum class LogLevel : uint8_t
+    //{
+    //    Trace,
+    //    Debug,
+    //    Info,
+    //    Warn,
+    //    Error,
+    //    Critical
+    //};
 
     // ------------------------------------------------------------------------
     // A single log entry – immutable, move‑only container

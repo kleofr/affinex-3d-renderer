@@ -14,3 +14,4 @@ Makefile
 !Vendor/Binaries
 Vendor/Binaries/GLFW
 Vendor/Binaries/IMGUI
+App/Log.txt
