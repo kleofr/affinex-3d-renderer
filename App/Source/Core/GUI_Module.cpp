@@ -17,14 +17,18 @@ namespace AffineX
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		LOG_INFO("GUI::Context successfully created.");
+
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+		LOG_INFO("GUI::Docking enabled.");
 
 		// Setup Platform/Renderer backends
 		ImGui_ImplGlfw_InitForOpenGL(&window, true);          // Pass pointer to GLFWwindow
 		ImGui_ImplOpenGL3_Init();
+		LOG_INFO("GUI::Platform/Renderer backends initialized.");
 	}
 
 	void GUI_Module::RenderGUI()
@@ -36,7 +40,14 @@ namespace AffineX
         
         ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockspace_flags);
-		renderDebugConsole(); // Render the debug console panel
+		
+		ApplyStyle(); // Apply custom styling for the editor
+        RenderViewport();
+        RenderDetails();
+		RenderConsole(m_logStorage, m_filterBuffer, sizeof(m_filterBuffer));
+		
+        
+        //renderDebugConsole(); // Render the debug console panel
 
 		// Rendering
 		ImGui::Render();
@@ -85,122 +96,6 @@ namespace AffineX
         case LogLevel::Critical: return showCritical;
         default:                 return true;
         }
-    }
-
-    // ------------------------------------------------------------------------
-    // Main debug console rendering
-    // ------------------------------------------------------------------------
-    void GUI_Module::renderDebugConsole()
-    {
-        if (!m_logStorage)
-            return;  // No storage available yet
-
-        // Begin the debug console window
-        ImGui::Begin("Debug Console");
-
-        // ------------------------------------------------------------
-        // 1. Control bar (filter + severity toggles + utilities)
-        // ------------------------------------------------------------
-        ImGui::BeginGroup();
-
-        // --- Filter text input ---
-        ImGui::InputText("Filter", m_filterBuffer, sizeof(m_filterBuffer));
-        ImGui::SameLine();
-
-        // --- Auto-scroll toggle ---
-        ImGui::Checkbox("Auto-scroll", &m_autoScroll);
-        ImGui::SameLine();
-
-        // --- Clear button ---
-        if (ImGui::Button("Clear"))
-        {
-            m_logStorage->clear();
-        }
-
-        // --- Severity filter toggles (in a single line) ---
-        ImGui::Text("Show:");
-        ImGui::SameLine();
-        ImGui::Checkbox("Trace", &m_showTrace);
-        ImGui::SameLine();
-        ImGui::Checkbox("Debug", &m_showDebug);
-        ImGui::SameLine();
-        ImGui::Checkbox("Info", &m_showInfo);
-        ImGui::SameLine();
-        ImGui::Checkbox("Warn", &m_showWarn);
-        ImGui::SameLine();
-        ImGui::Checkbox("Error", &m_showError);
-        ImGui::SameLine();
-        ImGui::Checkbox("Critical", &m_showCritical);
-
-        ImGui::EndGroup();
-
-        // Separator
-        ImGui::Separator();
-
-        // ------------------------------------------------------------
-        // 2. Log entries (in a scrollable child region)
-        // ------------------------------------------------------------
-        const float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-        ImGui::BeginChild("LogScrollRegion", ImVec2(0, -footerHeightToReserve), true);
-
-        // We need to know if the user is currently at the bottom
-        static bool wasAtBottom = true;
-        if (m_autoScroll)
-        {
-            // Check if we are at the bottom before new entries are rendered
-            wasAtBottom = ImGui::GetScrollY() >= ImGui::GetScrollMaxY();
-        }
-
-        // Iterate over all stored entries
-        m_logStorage->forEach([this](const LogEntry& entry)
-            {
-                // --- Filter by severity ---
-                const auto level = entry.getLevel();
-                if (!isLevelVisible(level, m_showTrace, m_showDebug, m_showInfo,
-                    m_showWarn, m_showError, m_showCritical))
-                {
-                    return;  // Skip this entry
-                }
-
-                // --- Filter by text (if filter is non-empty) ---
-                if (m_filterBuffer[0] != '\0')
-                {
-                    const std::string formatted = entry.format();
-                    const std::string filterLower = m_filterBuffer;
-                    // Case-insensitive search
-                    std::string textLower = formatted;
-                    std::transform(textLower.begin(), textLower.end(), textLower.begin(), ::tolower);
-                    if (textLower.find(filterLower) == std::string::npos)
-                    {
-                        return;  // Skip this entry
-                    }
-                }
-
-                // --- Render the entry with color ---
-                const ImVec4 color = getSeverityColor(level);
-                ImGui::PushStyleColor(ImGuiCol_Text, color);
-
-                // Format and display
-                const std::string formatted = entry.format();
-                ImGui::TextUnformatted(formatted.c_str());
-
-                ImGui::PopStyleColor();
-            });
-
-        // Auto-scroll to bottom if we were at the bottom before or new entries arrived
-        if (m_autoScroll && wasAtBottom)
-        {
-            ImGui::SetScrollHereY(1.0f);
-        }
-
-        ImGui::EndChild();  // LogScrollRegion
-
-        // ------------------------------------------------------------
-        // 3. Footer (optional: show log count, etc.)
-        // ------------------------------------------------------------
-        ImGui::Text("Total: %zu entries", m_logStorage->getSize());
-
-        ImGui::End();  // Debug Console
     }
 
 }
