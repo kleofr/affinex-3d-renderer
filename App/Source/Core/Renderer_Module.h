@@ -6,6 +6,15 @@
 #include <cstdint>
 #include <string>
 
+// Debugging/logging
+#include <Core/Logging/Log.h>
+
+// Shader and buffer classes
+#include <Renderer/Shaders/Shader.h>
+#include <Renderer/Buffers/VertexBuffer.h>
+#include <Renderer/Buffers/IndexBuffer.h>
+#include <Renderer/Buffers/VertexArrayObject.h>
+
 struct GLFWwindow; // forward-declare so header doesn't need glfw include
 
 namespace AffineX

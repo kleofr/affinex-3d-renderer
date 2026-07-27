@@ -12,6 +12,7 @@ namespace AffineX
 
 	bool Renderer_Module::InitRenderer(GLFWwindow& window)
 	{
+
 		if (m_initialized) return true;
 
 		// Store pointer for queries (framebuffer size). We do not own the window.
@@ -20,13 +21,16 @@ namespace AffineX
 		// Load GL function pointers with GLAD using GLFW's loader.
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
-			std::fprintf(stderr, "Renderer_Module: Failed to initialize GLAD\n");
+			LOG_ERROR("Renderer_Module: Failed to initialize GLAD");
 			m_window = nullptr;
 			return false;
 		}
 
+		const char* glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+		const char* glslVersion = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+
 		// Print GL info for diagnostics
-		std::printf("OpenGL: %s | GLSL: %s\n", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
+		LOG_INFO("OpenGL: {} | GLSL: {}", glVersion, glslVersion);
 
 		// Configure default GL state
 		glEnable(GL_DEPTH_TEST);
@@ -104,7 +108,7 @@ namespace AffineX
 		   -0.5f, -0.5f, 0.0f,
 			0.5f, -0.5f, 0.0f
 		};
-		GLuint VBO, VAO;
+		unsigned int VBO, VAO;
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 		glBindVertexArray(VAO);
