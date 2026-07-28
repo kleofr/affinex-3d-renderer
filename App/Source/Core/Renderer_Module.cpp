@@ -98,40 +98,7 @@ namespace AffineX
 		m_clearColor[2] = b;
 		m_clearColor[3] = a;
 	}
-
-	void Renderer_Module::createTriangle() const
-	{
-		if (!m_initialized) return;
-		// Simple hardcoded triangle rendering for testing
-		float vertices[] = {
-			0.0f,  0.5f, 0.0f,
-		   -0.5f, -0.5f, 0.0f,
-			0.5f, -0.5f, 0.0f
-		};
-		unsigned int VBO, VAO;
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-		glBindVertexArray(VAO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-
-
-		glUseProgram(0); // Use fixed-function pipeline for simplicity
-	}
-
-	void Renderer_Module::renderTraingle() const
-	{
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-	}
-
-	int Renderer_Module::createShaderProgram(const std::string* vertexSrc, const std::string* fragSrc)
-	{
-		
-		return 0;
-	}
+	
 
 	void Renderer_Module::SetViewport(int width, int height)
 	{

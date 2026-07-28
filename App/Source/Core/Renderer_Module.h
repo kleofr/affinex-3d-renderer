@@ -42,11 +42,6 @@ namespace AffineX
 		// End a frame (flush GL commands). Does NOT swap buffers — let windowing layer handle that.
 		void EndFrame();
 
-		void createTriangle() const;
-		void renderTraingle() const;
-
-		static int createShaderProgram(const std::string* vertexSrc, const std::string* fragSrc);
-
 		void SetClearColor(float r, float g, float b, float a = 1.0f);
 		void SetViewport(int width, int height);
 
@@ -56,6 +51,7 @@ namespace AffineX
 		GLFWwindow* m_window = nullptr;
 		bool m_initialized = false;
 		float m_clearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+
 	};
 }
 

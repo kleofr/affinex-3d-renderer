@@ -2,9 +2,10 @@
 
 namespace AffineX
 {
-	VertexBuffer::VertexBuffer(GLuint &VBO)
+	VertexBuffer::VertexBuffer(unsigned int id)
 	{
-		glGenBuffers(1, &VBO);
+		setRendererID(id);
+		glGenBuffers(1, &m_RendererID);
 	}
 	VertexBuffer::~VertexBuffer()
 	{

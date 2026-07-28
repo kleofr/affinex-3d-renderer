@@ -72,6 +72,7 @@ namespace AffineX {
         }
 
         return read_file(full_path);
+		LOG_INFO("Loaded shader stage {} from file: {}", static_cast<int>(stage), full_path.string());
     }
 
 } // namespace AffineX

@@ -8,7 +8,7 @@ namespace AffineX
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer(GLuint &VBO);
+		VertexBuffer(unsigned int id);
 		~VertexBuffer();
 
 		void Bind() const;
@@ -18,6 +18,6 @@ namespace AffineX
 		void setRendererID(GLuint id) { m_RendererID = id; }
 
 	private:
-		unsigned int m_RendererID;
+		unsigned int m_RendererID = 0;
 	};
 }

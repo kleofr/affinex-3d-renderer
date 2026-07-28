@@ -31,12 +31,10 @@ namespace AffineX
 
 	void Engine::Run() 
 	{
-		m_renderer.createTriangle();
 		while (isRunning && !glfwWindowShouldClose(m_window.GetGLFWwindow())) 
 		{
 			glfwPollEvents();
 			m_renderer.BeginFrame();
-			m_renderer.renderTraingle();
 			m_gui.RenderGUI();
 			m_renderer.EndFrame();
 			glfwSwapBuffers(m_window.GetGLFWwindow());

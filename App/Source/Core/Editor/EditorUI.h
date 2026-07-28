@@ -48,9 +48,6 @@ namespace AffineX {
     // Details panel – property grid for the selected object.
     void RenderDetails();
 
-    // Content Browser – asset thumbnail grid.
-    void RenderContentBrowser();
-
     // ------------------------------------------------------------------------
     // Debug Console
     // ------------------------------------------------------------------------

@@ -42,12 +42,9 @@ namespace AffineX
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockspace_flags);
 		
 		ApplyStyle(); // Apply custom styling for the editor
-        RenderViewport();
+        //RenderViewport();
         RenderDetails();
 		RenderConsole(m_logStorage, m_filterBuffer, sizeof(m_filterBuffer));
-		
-        
-        //renderDebugConsole(); // Render the debug console panel
 
 		// Rendering
 		ImGui::Render();

@@ -29,7 +29,7 @@ namespace AffineX
 		Logger_Module m_logger;
 
 		bool isRunning = false;
-		Window_Module::Window_Data m_windowData{ "AffineX Engine", 800, 600, true };
+		Window_Module::Window_Data m_windowData{ "AffineX Engine", 1920, 1080, true };
 		//std::vector<std::unique_ptr<C_System>> m_systems; // Placeholder for future systems
 	}; 
 

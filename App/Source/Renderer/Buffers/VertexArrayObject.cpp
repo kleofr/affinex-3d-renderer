@@ -2,8 +2,9 @@
 
 namespace AffineX
 {
-	VertexArrayObject::VertexArrayObject()
+	VertexArrayObject::VertexArrayObject(unsigned int id)
 	{
+		setRendererID(id);
 		glGenVertexArrays(1, &m_RendererID);
 	}
 	VertexArrayObject::~VertexArrayObject()
