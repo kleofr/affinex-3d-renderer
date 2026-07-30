@@ -25,8 +25,4 @@ namespace AffineX
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
-	void VertexBuffer::addData(auto data, uint32_t size) const
-	{
-		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-	}
 }

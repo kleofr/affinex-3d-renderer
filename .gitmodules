@@ -10,3 +10,6 @@
 [submodule "Vendor/Binaries/spdlog"]
 	path = Vendor/Binaries/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "Vendor/Binaries/GLM"]
+	path = Vendor/Binaries/GLM
+	url = https://github.com/g-truc/glm.git

@@ -15,7 +15,10 @@ namespace AffineX
 
 		if (m_initialized) return true;
 
-		// Store pointer for queries (framebuffer size). We do not own the window.
+		// ==================================================
+		// Load GL function pointers with GLAD using GLFW's loader.
+		// ==================================================
+
 		m_window = &window;
 
 		// Load GL function pointers with GLAD using GLFW's loader.
@@ -31,10 +34,14 @@ namespace AffineX
 			return false;
 		}
 
+		// ==================================================
+		// Print GL info for diagnostics
+		// ==================================================
+
 		const char* glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 		const char* glslVersion = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-		// Print GL info for diagnostics
+
 		LOG_INFO("OpenGL: {} | GLSL: {}", glVersion, glslVersion);
 
 		// Configure default GL state
@@ -50,7 +57,10 @@ namespace AffineX
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		LOG_INFO("Renderer_Module: Blending enabled");
 
-		// Set viewport to the current framebuffer size
+		// ==================================================
+		// Set default viewport and clear color
+		// ==================================================
+
 		int fbw = 0, fbh = 0;
 		glfwGetFramebufferSize(m_window, &fbw, &fbh);
 		glViewport(0, 0, fbw, fbh);
@@ -64,10 +74,12 @@ namespace AffineX
 
 	void Renderer_Module::ShutdownRenderer()
 	{
-		if (!m_initialized) return;
+		// ===================================================
+		// Cleanup and reset state
+		// ===================================================
 
-		// No owned GL resources here (caller manages VAOs/VBOs/shaders).
-		// Issue a finish to ensure pending commands complete before shutdown if needed.
+		if (!m_initialized) return;
+		
 		glFinish();
 
 		m_window = nullptr;
@@ -76,9 +88,12 @@ namespace AffineX
 
 	void Renderer_Module::BeginFrame()
 	{
+		//=================================================
+		// Clear color and depth buffers for a new frame
+		//=================================================
+
 		if (!gladLoadGL()) return;
 
-		// Update viewport in case of resize
 		if (m_window)
 		{
 			int fbw = 0, fbh = 0;
@@ -92,15 +107,22 @@ namespace AffineX
 
 	void Renderer_Module::EndFrame()
 	{
-		if (!gladLoadGL()) return;
+		//=================================================
+		// Flush GL commands for the current frame
+		//=================================================
 
-		// Flush commands; swapping buffers should be handled by the windowing layer to keep responsibilities separate.
+		if (!gladLoadGL()) return;
 		glFlush();
 	}
 
 
+
 	void Renderer_Module::SetClearColor(float r, float g, float b, float a)
 	{
+		//=================================================
+		// Set the clear color for the renderer
+		//=================================================
+
 		m_clearColor[0] = r;
 		m_clearColor[1] = g;
 		m_clearColor[2] = b;
@@ -110,16 +132,19 @@ namespace AffineX
 
 	void Renderer_Module::SetViewport(int width, int height)
 	{
+		//=================================================
+		// Set the viewport dimensions for rendering
+		//=================================================
+
 		if (!m_initialized) return;
 		glViewport(0, 0, width, height);
 	}
 
-	 //DEBUGGING: Simple scene creation and drawing for testing purposes.
-
 	void Renderer_Module::MakeScene()
 	{
-		// Placeholder for scene creation logic (e.g., creating VAOs, VBOs, shaders).
-		LOG_INFO("Renderer_Module: MakeScene() called - implement scene creation logic here.");
+		//=================================================
+		// Create a simple scene with a test mesh and shader program
+		//=================================================
 		
 		if (!gladLoadGL()) return;
 		m_testMesh = Mesh(
@@ -163,6 +188,10 @@ namespace AffineX
 
 	void Renderer_Module::DrawScene()
 	{
+		//=================================================
+		// Draw the test mesh using the test shader program
+		//=================================================
+
 		if (!gladLoadGL()) return;
 		if (!m_initialized) return;
 		glUseProgram(m_testProgram);
@@ -180,21 +209,26 @@ namespace AffineX
 	}
 
 
-	GLuint Renderer_Module::CreateShaderProgram() {
+	GLuint Renderer_Module::CreateShaderProgram()
+	{
+		//=================================================
+		// Create a simple shader program for testing
+		//=================================================
+
 		const char* vertexSource = R"(
         #version 330 core
         layout (location = 0) in vec4 aPos;
-        void main() {
-            gl_Position = aPos;
-        }
-    )";
+			void main() {
+				gl_Position = aPos;
+			}
+		)";
 		const char* fragmentSource = R"(
         #version 330 core
         out vec4 FragColor;
-        void main() {
-            FragColor = vec4(1.0, 0.5, 0.2, 1.0); // orange
-        }
-    )";
+			void main() {
+				FragColor = vec4(1.0, 0.5, 0.2, 1.0); // orange
+			}
+		)";
 
 		GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertex, 1, &vertexSource, nullptr);

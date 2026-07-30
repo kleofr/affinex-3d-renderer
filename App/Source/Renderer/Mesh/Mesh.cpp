@@ -1,77 +1,65 @@
-#include "Mesh.h"   // Adjust include path if needed
+#include "Mesh.h"
 
 #include <glad/glad.h>
 
 namespace AffineX {
 
-    // ----------------------------------------------------------------------------
+	// ============================================================================
     // Constructor
-    // ----------------------------------------------------------------------------
+	// ============================================================================
     Mesh::Mesh(const std::vector<VertexAttribute>& attributes,
         const std::vector<unsigned int>& indices,
         GLenum                              primitiveType,
         GLenum                              usageHint)
-        : m_vbos()                             // empty, will be filled
+        : m_vbos()                           
         , m_indexCount(static_cast<unsigned int>(indices.size()))
         , m_primitiveType(primitiveType)
         , m_usageHint(usageHint)
     {
         m_vao.Create();
 		m_ibo.Create();
-        // Bind the VAO so all attribute configuration goes to it
         m_vao.Bind();
-
-        // Reserve space for VBOs (one per attribute)
         m_vbos.reserve(attributes.size());
 
-        // For each attribute, create a VBO, upload data, and set up the attribute pointer
+		//=========================================================
+		// For each attribute, create a VBO, upload data, and configure the VAO
+		//=========================================================
+
         for (const auto& attr : attributes) {
-            // Create a VBO (constructor generates buffer)
             VertexBuffer vbo;
 			vbo.Create();
-            // Upload the data
             vbo.Bind();
             glBufferData(GL_ARRAY_BUFFER,
                 attr.data.size() * sizeof(float),
                 attr.data.data(),
                 m_usageHint);
-
-            // Configure the attribute at the given location
             glVertexAttribPointer(attr.location,
                 attr.components,
                 attr.type,
                 attr.normalized,
-                0,               // tightly packed per attribute
+                0,               
                 nullptr);
             glEnableVertexAttribArray(attr.location);
-
-            vbo.Unbind();   // optional, VAO will remember the binding
-
-            // Move the VBO into our vector
+            vbo.Unbind();
             m_vbos.emplace_back(std::move(vbo));
         }
 
         for (size_t i = 0; i < m_vbos.size(); ++i) {
             LOG_INFO("VBO[{}] ID: {}", i, m_vbos[i].getVBO());
         }
-
-        // Upload the index data
         m_ibo.Bind();
         GLint currentIBO;
         glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &currentIBO);
         LOG_INFO("Current IBO: {} (expected: {})", currentIBO, m_ibo.getIBO());
-
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,
             indices.size() * sizeof(unsigned int),
             indices.data(),
             m_usageHint);
-        //m_ibo.Unbind();
-        //m_vao.Unbind();
     }
 
-    // ----------------------------------------------------------------------------
+	// ============================================================================
     // Move semantics
-    // ----------------------------------------------------------------------------
+	// ============================================================================
     Mesh::Mesh(Mesh&& other) noexcept
         : m_vao(std::move(other.m_vao))
         , m_vbos(std::move(other.m_vbos))
@@ -80,9 +68,7 @@ namespace AffineX {
         , m_primitiveType(other.m_primitiveType)
         , m_usageHint(other.m_usageHint)
     {
-        // Leave other in a valid but unspecified state – its resources are moved
     }
-
     Mesh& Mesh::operator=(Mesh&& other) noexcept {
         if (this != &other) {
             m_vao = std::move(other.m_vao);
@@ -95,9 +81,9 @@ namespace AffineX {
         return *this;
     }
 
-    // ----------------------------------------------------------------------------
+	// ============================================================================
     // Binding
-    // ----------------------------------------------------------------------------
+	// ============================================================================
     void Mesh::bind() const {
         m_vao.Bind();
     }
@@ -106,14 +92,16 @@ namespace AffineX {
         m_vao.Unbind();
     }
 
-    // ----------------------------------------------------------------------------
+	// ============================================================================
     // Drawing
-    // ----------------------------------------------------------------------------
+	// ============================================================================
     void Mesh::draw() const {
-
-        // Bind the VAO (this sets all VBOs and the IBO)
         m_vao.Bind();
         GLenum err;
+
+		//==========================================================
+		// Debugging: Log OpenGL state on the first draw call
+		//==========================================================
 
         if (firstDraw) {
             GLint currentIBO;
@@ -161,15 +149,11 @@ namespace AffineX {
 
         err = glGetError();
         if (err != GL_NO_ERROR) LOG_ERROR("After draw: {}", err);
-
-
-        // Optionally unbind the VAO after drawing (not required, but good for cleanliness)
-        // m_vao.Unbind();
     }
 
-    // ----------------------------------------------------------------------------
+	// ============================================================================
     // Getters
-    // ----------------------------------------------------------------------------
+    // ============================================================================
     unsigned int Mesh::getVAO() const {
         return m_vao.getVAO();   
     }

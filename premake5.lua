@@ -8,7 +8,6 @@ workspace "AffineX"
       include "Vendor/Binaries/IMGUI"
       include "Vendor/Binaries/GLAD"
       include "Vendor/Binaries/GLFW"
-
     group ""
 
    -- Workspace-wide build options for MSVC
@@ -22,6 +21,7 @@ IncludeDirs["GLFW"] = "Vendor/Binaries/GLFW/include"
 IncludeDirs["GLAD"] = "Vendor/Binaries/GLAD/include/glad"
 IncludeDirs["IMGUI"] = "Vendor/Binaries/IMGUI"
 IncludeDirs["spdlog"] = "Vendor/Binaries/spdlog/include"
+IncludeDirs["GLM"] = "Vendor/Binaries/GLM"
 
 -- Include App Project
 
@@ -52,7 +52,8 @@ project "App"
         "Vendor/Binaries/GLAD/include",
         "Vendor/Binaries/IMGUI",
         "Vendor/Binaries/IMGUI/backends",
-        "Vendor/Binaries/spdlog/include"
+        "Vendor/Binaries/spdlog/include",
+        "Vendor/Binaries/GLM"
     }
 
     links
