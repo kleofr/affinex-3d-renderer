@@ -2,20 +2,24 @@
 
 namespace AffineX
 {
-	IndexBuffer::IndexBuffer(const uint32_t* data, uint32_t count)
-		: m_Count(count)
+	void IndexBuffer::Create()
 	{
-		glGenBuffers(1, &m_RendererID);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), data, GL_STATIC_DRAW);
+		glGenBuffers(1, &m_IBO);
 	}
+
+	void IndexBuffer::Create(unsigned int IBO)
+	{
+		m_IBO = IBO;
+		glGenBuffers(1, &m_IBO);
+	}
+
 	IndexBuffer::~IndexBuffer()
 	{
-		glDeleteBuffers(1, &m_RendererID);
+		glDeleteBuffers(1, &m_IBO);
 	}
 	void IndexBuffer::Bind() const
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
 	}
 	void IndexBuffer::Unbind() const
 	{

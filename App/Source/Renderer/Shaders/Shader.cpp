@@ -29,18 +29,21 @@ namespace AffineX {
         unsigned int vertex, fragment;
         const char* vCode = vertexCode.c_str();
         const char* fCode = fragmentCode.c_str();
+        LOG_INFO("Shader: Fetched source code from files.");
 
         // Vertex shader
         vertex = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertex, 1, &vCode, nullptr);
         glCompileShader(vertex);
         checkCompileErrors(vertex, "VERTEX");
+		LOG_INFO("Shader: Vertex shader compiled successfully.");
 
         // Fragment shader
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragment, 1, &fCode, nullptr);
         glCompileShader(fragment);
         checkCompileErrors(fragment, "FRAGMENT");
+		LOG_INFO("Shader: Fragment shader compiled successfully.");
 
         // 3. Link shaders into a program
         shaderID = glCreateProgram();
@@ -48,12 +51,13 @@ namespace AffineX {
         glAttachShader(shaderID, fragment);
         glLinkProgram(shaderID);
         checkCompileErrors(shaderID, "PROGRAM");
+		LOG_INFO("Shader: Shader program linked successfully.");
 
         // 4. Delete the shader objects (they are no longer needed)
         glDeleteShader(vertex);
         glDeleteShader(fragment);
 
-        LOG_INFO("Shader program created successfully (ID: {})", shaderID);
+        LOG_INFO("Shader: Shader program created successfully (ID: {})", shaderID);
     }
 
     // ------------------------------------------------------------
@@ -73,7 +77,7 @@ namespace AffineX {
             glUseProgram(shaderID);
         }
         else {
-            LOG_ERROR("Attempted to use an invalid shader program.");
+            LOG_ERROR("Shader: Attempted to use an invalid shader program.");
         }
     }
 
@@ -82,7 +86,7 @@ namespace AffineX {
     // ------------------------------------------------------------
     void Shader::setBool(const std::string& name, bool value) const {
         if (shaderID == 0) {
-            LOG_ERROR("Cannot set uniform '{}' on invalid shader.", name);
+            LOG_ERROR("Shader: Cannot set uniform '{}' on invalid shader.", name);
             return;
         }
         int location = glGetUniformLocation(shaderID, name.c_str());
@@ -91,7 +95,7 @@ namespace AffineX {
 
     void Shader::setInt(const std::string& name, int value) const {
         if (shaderID == 0) {
-            LOG_ERROR("Cannot set uniform '{}' on invalid shader.", name);
+            LOG_ERROR("Shader: Cannot set uniform '{}' on invalid shader.", name);
             return;
         }
         int location = glGetUniformLocation(shaderID, name.c_str());
@@ -100,7 +104,7 @@ namespace AffineX {
 
     void Shader::setFloat(const std::string& name, float value) const {
         if (shaderID == 0) {
-            LOG_ERROR("Cannot set uniform '{}' on invalid shader.", name);
+            LOG_ERROR("Shader: Cannot set uniform '{}' on invalid shader.", name);
             return;
         }
         int location = glGetUniformLocation(shaderID, name.c_str());
@@ -118,14 +122,14 @@ namespace AffineX {
             glGetProgramiv(shader, GL_LINK_STATUS, &success);
             if (!success) {
                 glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
-                LOG_ERROR("Shader program linking error:\n{}", infoLog);
+                LOG_ERROR("Shader: Shader program linking error:\n{}", infoLog);
             }
         }
         else {
             glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
             if (!success) {
                 glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-                LOG_ERROR("Shader compilation error ({}) :\n{}", type, infoLog);
+                LOG_ERROR("Shader: Shader compilation error ({}) :\n{}", type, infoLog);
             }
         }
     }

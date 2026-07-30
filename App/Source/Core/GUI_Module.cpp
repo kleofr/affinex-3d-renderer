@@ -17,18 +17,18 @@ namespace AffineX
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		LOG_INFO("GUI::Context successfully created.");
+		LOG_INFO("Graphical Interface: Context successfully created.");
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
-		LOG_INFO("GUI::Docking enabled.");
+		LOG_INFO("Graphical Interface: Docking enabled.");
 
 		// Setup Platform/Renderer backends
 		ImGui_ImplGlfw_InitForOpenGL(&window, true);          // Pass pointer to GLFWwindow
 		ImGui_ImplOpenGL3_Init();
-		LOG_INFO("GUI::Platform/Renderer backends initialized.");
+		LOG_INFO("Graphical Interface: Platform/Renderer backends initialized.");
 	}
 
 	void GUI_Module::RenderGUI()

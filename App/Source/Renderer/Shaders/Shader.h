@@ -12,6 +12,8 @@ namespace AffineX
 	class Shader
 	{
 	public:
+
+		Shader() = default;
 		// Constructor that builds the shader from a file
 		Shader(const std::string& vertexPath, const std::string& fragmentPath);
 		~Shader();

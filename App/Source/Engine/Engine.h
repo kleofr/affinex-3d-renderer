@@ -1,6 +1,7 @@
 //#include "Core/C_System.h"
 #include <vector>
 #include <memory>
+#include "../Core/Logging/Log.h"
 #include "Core/Renderer_Module.h"
 #include "Core/GUI_Module.h"
 #include "Core/Window_Module.h"
@@ -19,6 +20,7 @@ namespace AffineX
 		void Init();
 		void Run();
 		void Shutdown();
+
 
 		//void addSystem(C_System& system); // Placeholder for future system additions
 

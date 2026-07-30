@@ -262,7 +262,8 @@ void AffineX::RenderDetails() {
 // ------------------------------------------------------------
 void AffineX::RenderConsole(AffineX::LogStorage* storage,
     char* filterBuffer,
-    size_t filterBufSize) {
+    size_t filterBufSize)
+{
     if (!storage)
         return;
 
@@ -321,33 +322,106 @@ void AffineX::RenderConsole(AffineX::LogStorage* storage,
         wasAtBottom = ImGui::GetScrollY() >= ImGui::GetScrollMaxY();
     }
 
+    // Helper to convert LogLevel to a display string.
+    auto levelToString = [](LogLevel level) -> const char* {
+        switch (level) {
+        case LogLevel::Trace:    return "Trace";
+        case LogLevel::Debug:    return "Debug";
+        case LogLevel::Info:     return "Info";
+        case LogLevel::Warn:     return "Warn";
+        case LogLevel::Error:    return "Error";
+        case LogLevel::Critical: return "Critical";
+        default:                 return "Unknown";
+        }
+        };
+
     storage->forEach([&](const AffineX::LogEntry& entry) {
         LogLevel level = entry.getLevel();
 
-        // Severity filter using the static booleans.
+        // Severity filter.
         if (!IsLevelVisible(level,
             showTrace, showDebug, showInfo,
             showWarn, showError, showCritical)) {
             return;
         }
 
-        // Text filter.
+        // Get the full formatted string.
+        std::string fullText = entry.format();
+
+        // Text filter (case‑insensitive).
         if (filterBuffer[0] != '\0') {
-            std::string formatted = entry.format();
             std::string filterLower = filterBuffer;
-            std::transform(formatted.begin(), formatted.end(),
-                formatted.begin(), ::tolower);
             std::transform(filterLower.begin(), filterLower.end(),
                 filterLower.begin(), ::tolower);
-            if (formatted.find(filterLower) == std::string::npos) {
+            std::string textLower = fullText;
+            std::transform(textLower.begin(), textLower.end(),
+                textLower.begin(), ::tolower);
+            if (textLower.find(filterLower) == std::string::npos) {
                 return;
             }
         }
 
+        // ----- Split location and message -----
+        // Format: "path\to\file.cpp:line in Function -> message"
+        size_t splitPos = fullText.find(" -> ");
+        std::string locationPart;
+        std::string messagePart;
+
+        if (splitPos != std::string::npos) {
+            locationPart = fullText.substr(0, splitPos);
+            messagePart = fullText.substr(splitPos + 4); // skip " -> "
+        }
+        else {
+            locationPart = "";
+            messagePart = fullText;
+        }
+
+        // Extract just the filename (e.g., "Engine.cpp:18")
+        std::string shortLocation = locationPart;
+        if (!locationPart.empty()) {
+            size_t lastSlash = locationPart.find_last_of("\\/");
+            if (lastSlash != std::string::npos) {
+                shortLocation = locationPart.substr(lastSlash + 1);
+            }
+        }
+
+        // Get the severity colour.
         ImVec4 color = GetSeverityColor(level);
+
+        // ----- Render everything on ONE line with hanging indent for wrapped text -----
         ImGui::PushStyleColor(ImGuiCol_Text, color);
-        ImGui::TextUnformatted(entry.format().c_str());
-        ImGui::PopStyleColor();
+
+        // 1. Short location (grey, muted) with tooltip for full path
+        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "[%s]", shortLocation.c_str());
+        if (ImGui::IsItemHovered() && !locationPart.empty()) {
+            ImGui::BeginTooltip();
+            ImGui::Text("Full location:");
+            ImGui::TextUnformatted(locationPart.c_str());
+            ImGui::EndTooltip();
+        }
+
+        // 2. Severity level (in the severity colour)
+        ImGui::SameLine(0.0f, 6.0f);
+        ImGui::TextColored(color, "%s", levelToString(level));
+
+        // 3. Actual message – we want it to start after the level, and any wrapped
+        //    lines should align with the start of the message (hanging indent).
+        //    We achieve this by setting the cursor position to where the message begins,
+        //    and then enabling word wrapping.
+        ImGui::SameLine(0.0f, 6.0f);
+        // Get the current cursor X position (this is the start of the message area)
+        float messageStartX = ImGui::GetCursorPosX();
+        // Set the cursor to that X (it already is, but we keep it for clarity)
+        ImGui::SetCursorPosX(messageStartX);
+        // Now draw the message with wrapping.
+        ImGui::PushTextWrapPos(0.0f); // wrap at the right edge of the window
+        ImGui::TextUnformatted(messagePart.c_str());
+        ImGui::PopTextWrapPos();
+
+        // IMPORTANT: After the message, the cursor will be at the end of the message,
+        // which might be on a new line if it wrapped. We don't need to do anything else.
+
+        ImGui::PopStyleColor(); // restore text colour
         });
 
     if (autoScroll && wasAtBottom) {

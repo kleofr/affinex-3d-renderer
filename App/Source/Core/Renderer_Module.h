@@ -11,9 +11,7 @@
 
 // Shader and buffer classes
 #include <Renderer/Shaders/Shader.h>
-#include <Renderer/Buffers/VertexBuffer.h>
-#include <Renderer/Buffers/IndexBuffer.h>
-#include <Renderer/Buffers/VertexArrayObject.h>
+#include <Renderer/Mesh/Mesh.h>
 
 struct GLFWwindow; // forward-declare so header doesn't need glfw include
 
@@ -42,8 +40,13 @@ namespace AffineX
 		// End a frame (flush GL commands). Does NOT swap buffers — let windowing layer handle that.
 		void EndFrame();
 
+		void MakeScene();
+		void DrawScene();
+
 		void SetClearColor(float r, float g, float b, float a = 1.0f);
 		void SetViewport(int width, int height);
+
+		GLuint CreateShaderProgram();
 
 		bool IsInitialized() const noexcept { return m_initialized; }
 
@@ -51,6 +54,14 @@ namespace AffineX
 		GLFWwindow* m_window = nullptr;
 		bool m_initialized = false;
 		float m_clearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+
+		// Debugging/test resources (for initial testing of rendering pipeline)
+		Mesh m_testMesh;
+		Shader m_testShader;
+		GLuint m_testProgram = 0;
+
+		//helper var
+		mutable bool firstDraw = true; // to log only on the first draw call
 
 	};
 }

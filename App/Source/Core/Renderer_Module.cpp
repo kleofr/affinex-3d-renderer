@@ -26,6 +26,11 @@ namespace AffineX
 			return false;
 		}
 
+		if (!gladLoadGL()) {
+			LOG_ERROR("Failed to load OpenGL functions!");
+			return false;
+		}
+
 		const char* glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 		const char* glslVersion = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
 
@@ -35,12 +40,15 @@ namespace AffineX
 		// Configure default GL state
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
+		LOG_INFO("Renderer_Module: Depth testing enabled (GL_LESS)");
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
+		LOG_INFO("Renderer_Module: Back-face culling enabled");
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		LOG_INFO("Renderer_Module: Blending enabled");
 
 		// Set viewport to the current framebuffer size
 		int fbw = 0, fbh = 0;
@@ -68,7 +76,7 @@ namespace AffineX
 
 	void Renderer_Module::BeginFrame()
 	{
-		if (!m_initialized) return;
+		if (!gladLoadGL()) return;
 
 		// Update viewport in case of resize
 		if (m_window)
@@ -84,7 +92,7 @@ namespace AffineX
 
 	void Renderer_Module::EndFrame()
 	{
-		if (!m_initialized) return;
+		if (!gladLoadGL()) return;
 
 		// Flush commands; swapping buffers should be handled by the windowing layer to keep responsibilities separate.
 		glFlush();
@@ -104,5 +112,119 @@ namespace AffineX
 	{
 		if (!m_initialized) return;
 		glViewport(0, 0, width, height);
+	}
+
+	 //DEBUGGING: Simple scene creation and drawing for testing purposes.
+
+	void Renderer_Module::MakeScene()
+	{
+		// Placeholder for scene creation logic (e.g., creating VAOs, VBOs, shaders).
+		LOG_INFO("Renderer_Module: MakeScene() called - implement scene creation logic here.");
+		
+		if (!gladLoadGL()) return;
+		m_testMesh = Mesh(
+			{
+				// Cube vertices (8 vertices * 4 floats each = 32 floats)
+				{ {
+					-0.5f, -0.5f, -0.5f, 1.0f,   // 0
+					 0.5f, -0.5f, -0.5f, 1.0f,   // 1
+					 0.5f,  0.5f, -0.5f, 1.0f,   // 2
+					-0.5f,  0.5f, -0.5f, 1.0f,   // 3
+					-0.5f, -0.5f,  0.5f, 1.0f,   // 4
+					 0.5f, -0.5f,  0.5f, 1.0f,   // 5
+					 0.5f,  0.5f,  0.5f, 1.0f,   // 6
+					-0.5f,  0.5f,  0.5f, 1.0f    // 7
+				}, // data
+				4,    // components (x, y, z, w)
+				0,    // location (matches shader layout)
+				GL_FLOAT,
+				GL_FALSE }
+			},
+	{   // Indices for 12 triangles (36 indices)
+		// Back face (z = -0.5)
+		0, 1, 2,   0, 2, 3,
+		// Front face (z = +0.5)
+		4, 6, 5,   4, 7, 6,
+		// Left face (x = -0.5)
+		0, 3, 7,   0, 7, 4,
+		// Right face (x = +0.5)
+		1, 5, 6,   1, 6, 2,
+		// Bottom face (y = -0.5)
+		0, 4, 5,   0, 5, 1,
+		// Top face (y = +0.5)
+		3, 2, 6,   3, 6, 7
+	},
+			GL_TRIANGLES
+		);
+
+		m_testProgram = CreateShaderProgram();
+		//m_testShader = Shader("path/to/vertex_shader.glsl", "path/to/fragment_shader.glsl");
+	}
+
+	void Renderer_Module::DrawScene()
+	{
+		if (!gladLoadGL()) return;
+		if (!m_initialized) return;
+		glUseProgram(m_testProgram);
+		GLint currentProgram;
+		glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
+		if (firstDraw) {
+			LOG_TRACE("Current program: {} (expected: {})", currentProgram, m_testProgram);
+			firstDraw = false;
+		}
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		m_testMesh.draw();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // revert
+		//m_testShader.use();
+	}
+
+
+	GLuint Renderer_Module::CreateShaderProgram() {
+		const char* vertexSource = R"(
+        #version 330 core
+        layout (location = 0) in vec4 aPos;
+        void main() {
+            gl_Position = aPos;
+        }
+    )";
+		const char* fragmentSource = R"(
+        #version 330 core
+        out vec4 FragColor;
+        void main() {
+            FragColor = vec4(1.0, 0.5, 0.2, 1.0); // orange
+        }
+    )";
+
+		GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertex, 1, &vertexSource, nullptr);
+		glCompileShader(vertex);
+		// (add error checking if you like)
+
+		GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragment, 1, &fragmentSource, nullptr);
+		glCompileShader(fragment);
+
+		GLuint program = glCreateProgram();
+		glAttachShader(program, vertex);
+		glAttachShader(program, fragment);
+		glLinkProgram(program);
+		// (error checking)
+
+		glDeleteShader(vertex);
+		glDeleteShader(fragment);
+		return program;
+
+		int success;
+		char infoLog[512];
+		glGetProgramiv(m_testProgram, GL_LINK_STATUS, &success);
+		if (!success) {
+			glGetProgramInfoLog(m_testProgram, 512, nullptr, infoLog);
+			LOG_ERROR("Shader linking failed:\n{}", infoLog);
+		}
+		else {
+			LOG_INFO("Shader program linked successfully (ID: {})", m_testProgram);
+		}
+
 	}
 }
